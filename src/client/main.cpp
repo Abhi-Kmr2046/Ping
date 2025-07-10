@@ -6,9 +6,19 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <iostream>
+
 
 int main(int argc, char const* argv[])
 {
     Client* cli = Client::getInstance();
-    cli->sendRequest();
+    //cli->test();
+    char* message = "Hello There Message from Client";
+    cli->connectServer();
+    cli->sendMessage(message, strlen(message));
+    
+    char* rec = new char[1024];
+    cli->receiveMessage(rec);
+    cout<<rec<<endl;
+
 }

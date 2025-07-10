@@ -2,7 +2,7 @@
 #include <netinet/in.h>
 
 #define PORT 8080
-#define BUF  1024
+#define BUF  65536
 
 using namespace std;
 
@@ -23,11 +23,16 @@ private:
     ~Server();
     Server();
 
-    public:
+public:
     static Server* getInstance();
     int bindSocket();
-    int processRequest();
+    int test();
     int startServer();
+    int processRequest();
+    int sendMessage(char* message, int len);
+    int receiveMessage(char* message);
+
+
 };
 
 

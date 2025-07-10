@@ -13,8 +13,9 @@
 
 Server::Server() 
 {
+    
     buffer = new char[BUF];
-
+    
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket failed");
@@ -60,7 +61,7 @@ int Server::bindSocket()
     return 1;
 }
 
-int Server::processRequest()
+int Server::test()
 {
     char* hello = "Hello from server";
     if (listen(server_fd, 3) < 0) {
@@ -80,11 +81,53 @@ int Server::processRequest()
     size_t valread = read(new_socket, buffer,
                    1024 - 1); 
     printf("%s\n", buffer);
-    send(new_socket, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
+    //send(new_socket, hello, strlen(hello), 0);
+    //printf("Hello message Received\n");
 
     close(new_socket);
     return 1;
+}
+
+int Server::processRequest()
+{
+    if (listen(server_fd, 3) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket
+        = accept(server_fd, (struct sockaddr*)&address,
+        &addrlen))
+        < 0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+
+    
+    char* message = buffer;
+
+    int status = receiveMessage(message);
+    printf("%s\n", message);
+
+    char* messageS = "Hello There Message from Server";
+    sendMessage(messageS, strlen(messageS));
+
+    close(new_socket);
+    return 1;
+}
+
+int Server::sendMessage(char* message, int len)
+{
+    send(new_socket, message, len, 0);
+    return 0;
+}
+
+int Server::receiveMessage(char* message)
+{
+    // subtract 1 for the null
+    // terminator at the end
+    size_t valread = read(new_socket, message, BUF - 1); 
+    message[valread] = 0;
+    return 0;
 }
 
 int Server::startServer()
@@ -97,10 +140,9 @@ int Server::startServer()
         while (true)
         {
             processRequest();
-            sleep(3);
+            sleep(1);
         }
     } else {
-
         std::cout<<"Server Started pid: "<<ret<<std::endl;
         int status;
         wait(&status);

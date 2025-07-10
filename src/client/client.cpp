@@ -48,8 +48,7 @@ Client* Client::getInstance()
     
 }
 
-
-int Client::sendRequest()
+int Client::test()
 {
     int status;
     if ((status
@@ -80,6 +79,43 @@ int Client::sendRequest()
     return 0;
 }
 
+int Client::connectServer()
+{
+    int status;
+    if ((status
+         = connect(client_fd, (struct sockaddr*)&serv_addr,
+                   sizeof(serv_addr)))
+        < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+    struct sockaddr_in local;
+    socklen_t len = sizeof(local);
+    return 0;
+    if (getsockname(client_fd, (struct sockaddr*)&local, &len) < 0) {
+        perror("getsockname");
+        throw "Connection Failed";
+    } else {
+        std::cout<<"there"<<std::endl;
+        printf("Client is using local port %d\n", ntohs(local.sin_port));
+    }
+    return 0;
+}
+
+int Client::sendMessage(char* message, size_t len)
+{
+    send(client_fd, message, len, 0);
+    return 0;
+}
+
+int Client::receiveMessage(char* message)
+{
+    // subtract 1 for the null
+    // terminator at the end
+    size_t valread = read(client_fd, message, BUF - 1); 
+    message[valread] = 0;
+    return 0;
+}
 
 Client* Client::instance = nullptr;
 char* Client::IP = "192.168.0.115";

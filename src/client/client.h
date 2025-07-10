@@ -2,7 +2,7 @@
 #include <netinet/in.h>
 
 #define SPORT 8080
-#define BUF  1024
+#define BUF  65536
 
 using namespace std;
 
@@ -25,5 +25,9 @@ private:
 
     public:
     static Client* getInstance();
-    int sendRequest();
+    int test();
+    int connectServer();
+
+    int sendMessage(char* message, size_t len);
+    int receiveMessage(char* message);
 };
