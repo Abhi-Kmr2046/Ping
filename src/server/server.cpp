@@ -17,26 +17,25 @@ Server::Server()
     buffer = new char[BUF];
     
     // Creating socket file descriptor
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket failed");
         throw "Failed Socket Creation";
     }
     // Forcefully attaching socket to the port 8080
-    if (setsockopt(server_fd, SOL_SOCKET,
+    if (setsockopt(fd, SOL_SOCKET,
                    SO_REUSEADDR | SO_REUSEPORT, &opt,
                    sizeof(opt))) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr(IP);
-    address.sin_port = htons(PORT);
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(IP);
+    addr.sin_port = htons(PORT);
 }
 
 Server::~Server()
 {
-    delete buffer;
-    close(server_fd);
+    
 }
 
 Server* Server::getInstance() 
@@ -52,8 +51,8 @@ Server* Server::getInstance()
 int Server::bindSocket()
 {
     // Forcefully attaching socket to the port
-    if (bind(server_fd, (struct sockaddr*)&address,
-             sizeof(address))
+    if (bind(fd, (struct sockaddr*)&addr,
+             sizeof(addr))
         < 0) {
         perror("bind failed");
         throw "Bind Failed";
@@ -64,12 +63,13 @@ int Server::bindSocket()
 int Server::test()
 {
     char* hello = "Hello from server";
-    if (listen(server_fd, 3) < 0) {
+    if (listen(fd, 3) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
+    int new_socket;
     if ((new_socket
-         = accept(server_fd, (struct sockaddr*)&address,
+         = accept(fd, (struct sockaddr*)&addr,
                   &addrlen))
         < 0) {
         perror("accept");
@@ -88,14 +88,16 @@ int Server::test()
     return 1;
 }
 
+
 int Server::processRequest()
 {
-    if (listen(server_fd, 3) < 0) {
+    if (listen(fd, 3) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    if ((new_socket
-        = accept(server_fd, (struct sockaddr*)&address,
+    int client_socket;
+    if ((client_socket
+        = accept(fd, (struct sockaddr*)&addr,
         &addrlen))
         < 0) {
             perror("accept");
@@ -105,30 +107,16 @@ int Server::processRequest()
     
     char* message = buffer;
 
-    int status = receiveMessage(message);
+    int status = receiveSocket(client_socket,message);
     printf("%s\n", message);
 
     char* messageS = "Hello There Message from Server";
-    sendMessage(messageS, strlen(messageS));
+    sendSocket(client_socket, messageS, strlen(messageS));
 
-    close(new_socket);
+    close(client_socket);
     return 1;
 }
 
-int Server::sendMessage(char* message, int len)
-{
-    send(new_socket, message, len, 0);
-    return 0;
-}
-
-int Server::receiveMessage(char* message)
-{
-    // subtract 1 for the null
-    // terminator at the end
-    size_t valread = read(new_socket, message, BUF - 1); 
-    message[valread] = 0;
-    return 0;
-}
 
 int Server::startServer()
 {

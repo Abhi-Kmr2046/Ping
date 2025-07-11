@@ -5,12 +5,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 add_subdirectory(${CMAKE_BINARY_DIR}/src/client)
 add_subdirectory(${CMAKE_BINARY_DIR}/src/server)
 
-add_custom_target(run_server
+add_custom_target(serverrun
   COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/server
   DEPENDS server
   COMMENT "Running Server"
 )
-add_custom_target(run_client
+add_custom_target(clientrun
   COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/client
   DEPENDS client
   COMMENT "Running Client"
