@@ -4,8 +4,6 @@
 #define SPORT 8080
 #define BUF  65536
 
-using namespace std;
-
 class Client
 {
 private:

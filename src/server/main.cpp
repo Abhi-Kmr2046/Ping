@@ -1,11 +1,8 @@
 #include "server.h"
 
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <string>
 #include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 int main(int argc, char const* argv[])
 {

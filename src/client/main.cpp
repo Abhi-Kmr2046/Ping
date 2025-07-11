@@ -1,12 +1,8 @@
 #include "client.h"
 
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
 #include <iostream>
+#include <string>
+#include <string.h>
 
 
 int main(int argc, char const* argv[])
@@ -19,6 +15,6 @@ int main(int argc, char const* argv[])
     
     char* rec = new char[1024];
     cli->receiveMessage(rec);
-    cout<<rec<<endl;
+    std::cout<<rec<<std::endl;
 
 }

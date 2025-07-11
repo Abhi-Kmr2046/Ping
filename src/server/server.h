@@ -4,7 +4,6 @@
 #define PORT 8080
 #define BUF  65536
 
-using namespace std;
 
 class Server
 {
