@@ -54,7 +54,7 @@ int Client::test()
          = connect(fd, (struct sockaddr*)&addr,
                    sizeof(addr)))
         < 0) {
-        printf("\nConnection Failed \n");
+        std::cout<<"Connection Failed"<<std::endl;
         return -1;
     }
 
@@ -63,15 +63,16 @@ int Client::test()
     if (getsockname(fd, (struct sockaddr*)&local, &len) < 0) {
         perror("getsockname");
     } else {
-        printf("Client is using local port %d\n", ntohs(local.sin_port));
+        std::cout<<"Client is using local port " << ntohs(local.sin_port)<<std::endl;
     }
 
     char* hello = "Hello from client";
     send(fd, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
+    std::cout<<"Hello message sent\n"<<std::endl;
     size_t valread = read(fd, buffer,
                    1024 - 1); 
-    printf("%s\n", buffer);
+    // printf("%s\n", buffer);
+    std::cout<<buffer<<std::endl;
 
     // closing the connected socket
     close(fd);
@@ -85,7 +86,7 @@ int Client::connectServer()
          = connect(fd, (struct sockaddr*)&addr,
                    sizeof(addr)))
         < 0) {
-        printf("\nConnection Failed \n");
+        std::cout<<"Connection Failed"<<std::endl;
         return -1;
     }
     struct sockaddr_in local;
@@ -94,7 +95,7 @@ int Client::connectServer()
         perror("getsockname");
         throw "Connection Failed";
     } else {
-        printf("Client is using local port %d\n", ntohs(local.sin_port));
+        std::cout<<"Client is using local port " << ntohs(local.sin_port)<<std::endl;
     }
     return 0;
 }

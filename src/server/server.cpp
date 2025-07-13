@@ -48,7 +48,6 @@ Server* Server::getInstance()
     }
     std::cout<<"Instance pid: "<<getpid()<<std::endl;
     return instance;
-    
 }
 
 int Server::bindSocket()
@@ -60,7 +59,7 @@ int Server::bindSocket()
         perror("bind failed");
         throw "Bind Failed";
     }
-    return 1;
+    return 0;
 }
 
 int Server::test()
@@ -96,14 +95,21 @@ int Server::processClientRequest(int client_socket)
     char* message = buffer;
 
     int status = receiveSocket(client_socket,message);
-    printf("%s\n", message);
+    // printf("%s\n", message);
+    std::cout<<message<<std::endl;
 
     char* messageS = "Hello There Message from Server";
     sendSocket(client_socket, messageS, strlen(messageS));
 
-    sleep(10);
+    sleep(4);
+
     close(client_socket);
 
+    std::thread::id tid = std::this_thread::get_id();
+    thread_pool.markFinished(tid);
+
+    std::cout<<"Request Completed: " << tid<<std::endl;
+    
     return 0;
 }
 
@@ -122,7 +128,7 @@ int Server::retrieveClientRequest()
             exit(EXIT_FAILURE);
         }
 
-    printf("Connection Accepted for client: %d\n", client_socket );
+    std::cout<<"Connection Accepted for client: " << client_socket <<std::endl;
     //processClientRequest(client_socket);
     //return 0;
     int st = thread_pool.addRequest(
@@ -131,7 +137,7 @@ int Server::retrieveClientRequest()
     );
     
     
-    return 1;
+    return 0;
 }
 
 
@@ -153,7 +159,7 @@ int Server::startServer()
         int status;
         wait(&status);
     }
-    return 1;
+    return 0;
 }
 
 
