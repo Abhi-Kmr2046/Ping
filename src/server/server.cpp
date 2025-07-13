@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <iostream>
+#include <thread>
+#include <mutex>
+
 
 #include "server.h"
 
@@ -88,8 +91,23 @@ int Server::test()
     return 1;
 }
 
+int Server::processClientRequest(int client_socket)
+{
+    char* message = buffer;
 
-int Server::processRequest()
+    int status = receiveSocket(client_socket,message);
+    printf("%s\n", message);
+
+    char* messageS = "Hello There Message from Server";
+    sendSocket(client_socket, messageS, strlen(messageS));
+
+    sleep(10);
+    close(client_socket);
+
+    return 0;
+}
+
+int Server::retrieveClientRequest()
 {
     if (listen(fd, 3) < 0) {
         perror("listen");
@@ -104,16 +122,15 @@ int Server::processRequest()
             exit(EXIT_FAILURE);
         }
 
+    printf("Connection Accepted for client: %d\n", client_socket );
+    //processClientRequest(client_socket);
+    //return 0;
+    int st = thread_pool.addRequest(
+        [this] (int sock) {return this->processClientRequest(sock);}, 
+        client_socket
+    );
     
-    char* message = buffer;
-
-    int status = receiveSocket(client_socket,message);
-    printf("%s\n", message);
-
-    char* messageS = "Hello There Message from Server";
-    sendSocket(client_socket, messageS, strlen(messageS));
-
-    close(client_socket);
+    
     return 1;
 }
 
@@ -127,7 +144,8 @@ int Server::startServer()
     } else if(ret == 0) {
         while (true)
         {
-            processRequest();
+            thread_pool.startMonitoring();
+            retrieveClientRequest();
             sleep(1);
         }
     } else {

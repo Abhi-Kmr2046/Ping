@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <string.h>
+#include <unistd.h>
 
 
 int main(int argc, char const* argv[])
@@ -14,6 +15,7 @@ int main(int argc, char const* argv[])
     cli->sendMessage(message, strlen(message));
     
     char* rec = new char[1024];
+    //sleep(10);
     cli->receiveMessage(rec);
     std::cout<<rec<<std::endl;
 
