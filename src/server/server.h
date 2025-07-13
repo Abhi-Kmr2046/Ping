@@ -15,6 +15,12 @@ private:
     static Server* instance;
     static char* IP;
     
+    struct operation
+    {
+        int ops = 0;
+        std::string filepath;
+    };
+    
 
 private:
     ~Server();
@@ -27,12 +33,15 @@ private:
     std::mutex mx_server;
     ThreadPool thread_pool;
 
+    operation parseRequest(std::string);
 public:
     static Server* getInstance();
     int bindSocket();
     int startServer();
-    int processClientRequest(int client_socket);
-
+    int processClientRequest(int );
+    int ops0TestMessageServer(int, operation , char*);
+    int ops1SendFileServer(int, operation , char*);
+    int ops2ReceiveFileServer(int, operation , char*);
 };
 
 

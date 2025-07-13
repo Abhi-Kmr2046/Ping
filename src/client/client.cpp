@@ -108,7 +108,63 @@ int Client::sendMessage(char* message, int len)
 
 int Client::receiveMessage(char* message)
 {
-    receiveSocket(fd, message);
+    size_t len = receiveSocket(fd, message);
+    return len;
+}
+int Client::ops0TestMessageClient()
+{   
+    char* req_string = "0";
+    instance->sendMessage(req_string, strlen(req_string));
+
+    char* message = "Operation 0 Test Connection : Server";
+    instance->sendMessage(message, strlen(message));
+    
+    char* rec = new char[1024];
+    //sleep(10);
+    instance->receiveMessage(rec);
+    std::cout<<rec<<std::endl;
+    delete rec;
+    return 0;
+}
+int Client::ops1ReceiveFileClient(char* destfilepath, char* serverpath)
+{   
+    char* req_string = new char[256];
+    req_string[0] = '1';
+    req_string[1] = ' ';
+    strcpy(&req_string[2], serverpath);
+    instance->sendMessage(req_string, strlen(req_string));
+
+    char * rec = new char [1024];
+    instance->receiveMessage(rec);
+    size_t file_size = atoi(rec);
+    std::cout<<"File Size:" << file_size<<std::endl;
+    
+    char * message = new char[BUF];
+
+    if (FILE *fp = fopen(destfilepath, "wb")) {
+        size_t len = 0;
+        while(file_size >0) {
+            len = receiveMessage(message);
+            //std::cout<<file_size << " " << len<<std::endl;
+            
+            if(file_size < sizeof(message)) len = file_size;
+
+            file_size -= len;
+            int fst = 0;
+            if ( (fst = fwrite(message, 1, len, fp)) < 0 ){
+                std::cout<<"file Write error" << std::endl;
+            }
+
+        }
+
+        std::cout << "File Transfer Complete" <<std::endl;
+    }else {
+        std::cout<<"File Read Error"<<std::endl;
+    }
+    
+    
+    delete req_string;
+    delete message;
     return 0;
 }
 

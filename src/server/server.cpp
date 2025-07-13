@@ -9,7 +9,8 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-
+#include <sstream>
+#include <stdlib.h> 
 
 #include "server.h"
 
@@ -90,23 +91,106 @@ int Server::test()
     return 1;
 }
 
+int Server::ops0TestMessageServer(int client_socket, operation op, char* message)
+{
+    op;
+    int status = receiveSocket(client_socket,message);
+    // printf("%s\n", message);
+    std::cout<<message<<std::endl;
+
+    char* messageS = "Operation 0 Test Connection : Server";
+    sendSocket(client_socket, messageS, strlen(messageS));
+
+    sleep(1);
+    return 0;
+}
+
+int Server::ops1SendFileServer(int client_socket, operation op, char* message)
+{
+    size_t file_size = 0;
+    std::cout << "Operation : " << op.ops << " ";
+    std::cout<<"File path: "<<op.filepath<<std::endl;
+    if (FILE *fp = fopen(op.filepath.c_str(), "rb")) {
+        size_t len = 0;
+        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+            file_size += len;
+            if(len < sizeof(message)) break;
+        }
+        fclose(fp);
+    }else {
+        std::cout<<"File Read Error"<<std::endl;
+    }
+
+    // Send File Size
+    char file_size_s [10];
+    strcpy(file_size_s, std::to_string(file_size).c_str());
+    sendSocket(client_socket, file_size_s, strlen(file_size_s));
+
+    if (FILE *fp = fopen(op.filepath.c_str(), "rb")) {
+        size_t len = 0;
+        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+            //std::cout << len<< std::endl;
+            sendSocket(client_socket, message, len);
+        }
+    }else {
+        std::cout<<"File Read Error"<<std::endl;
+    }
+
+    // send file
+    sleep(1);
+    return 0;
+}
+
+int Server::ops2ReceiveFileServer(int client_socket, operation op, char* message)
+{
+    op;
+    int status = receiveSocket(client_socket,message);
+    // printf("%s\n", message);
+    std::cout<<message<<std::endl;
+
+    char* messageS = "Operation 0 Test Connection : Server";
+    sendSocket(client_socket, messageS, strlen(messageS));
+
+    sleep(1);
+    return 0;
+}
+
 int Server::processClientRequest(int client_socket)
 {
-    char* message = buffer;
+    char* message = new char[BUF];
 
     int status = receiveSocket(client_socket,message);
     // printf("%s\n", message);
     std::cout<<message<<std::endl;
 
-    char* messageS = "Hello There Message from Server";
+    char* messageS = "Connection Established - Server";
     sendSocket(client_socket, messageS, strlen(messageS));
 
+    
+    status = receiveSocket(client_socket,message);
+    
+    std::string req(message);
+    operation op = parseRequest(req);
+    
+    switch (op.ops)
+    {
+        case 0:
+        ops0TestMessageServer(client_socket, op, message);
+        break;
+        case 1:
+        ops1SendFileServer(client_socket, op, message);
+        break;
+        default:
+        break;
+    }
     sleep(4);
+
 
     close(client_socket);
 
     std::thread::id tid = std::this_thread::get_id();
     thread_pool.markFinished(tid);
+    delete message;
 
     std::cout<<"Request Completed: " << tid<<std::endl;
     
@@ -160,6 +244,24 @@ int Server::startServer()
         wait(&status);
     }
     return 0;
+}
+
+Server::operation Server::parseRequest(std::string req)
+{
+    operation op;
+
+    std::stringstream req_stream(req);
+    req_stream>>op.ops;
+    switch (op.ops)
+    {
+    case 0:
+        break;
+    case 1:
+        req_stream>>op.filepath;
+    default:
+        break;
+    }
+    return op;
 }
 
 

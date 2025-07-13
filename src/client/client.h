@@ -25,5 +25,6 @@ private:
 public:
     int sendMessage(char* message, int len);
     int receiveMessage(char* message);
-
+    int ops0TestMessageClient();
+    int ops1ReceiveFileClient(char* destfilepath, char* serverpath);
 };

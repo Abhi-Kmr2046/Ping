@@ -18,7 +18,7 @@ public:
     int virtual test() = 0;
 
     int sendSocket(int socket, char* message, int len);
-    int receiveSocket(int socket, char* message);
+    int receiveSocket(int socket, char* message, int len = BUF);
 
 };
 

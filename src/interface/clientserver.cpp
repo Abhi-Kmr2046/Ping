@@ -18,12 +18,12 @@ int ClientServer::sendSocket(int socket, char* message, int len)
     return 0;
 }
 
-int ClientServer::receiveSocket(int socket, char* message)
+int ClientServer::receiveSocket(int socket, char* message, int len)
 {
     // subtract 1 for the null
     // terminator at the end
-    size_t valread = read(socket, message, BUF - 1); 
-    message[valread] = 0;
-    return 0;
+    size_t valread = read(socket, message, len); 
+    //message[valread] = 0;
+    return valread;
     
 }

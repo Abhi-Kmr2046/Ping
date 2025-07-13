@@ -10,7 +10,7 @@ int main(int argc, char const* argv[])
 {
     Client* cli = Client::getInstance();
     //cli->test();
-    char* message = "Hello There Message from Client";
+    char* message = "Connection Established - Client";
     cli->connectServer();
     cli->sendMessage(message, strlen(message));
     
@@ -18,5 +18,11 @@ int main(int argc, char const* argv[])
     //sleep(10);
     cli->receiveMessage(rec);
     std::cout<<rec<<std::endl;
+
+    //cli->ops0TestMessageClient();
+
+    char* servpath = "/home/abhi/Downloads/Server/back.jpg";
+    char* clipath = "/home/abhi/Downloads/Client/back.jpg";
+    cli->ops1ReceiveFileClient(clipath, servpath);
 
 }
