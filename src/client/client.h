@@ -27,4 +27,5 @@ public:
     int receiveMessage(char* message);
     int ops0TestMessageClient();
     int ops1ReceiveFileClient(char* destfilepath, char* serverpath);
+    int ops2SendFileClient(char* filename, char* filepath);
 };

@@ -21,6 +21,7 @@ private:
         std::string filepath;
     };
     
+    static char* downloaddir;
 
 private:
     ~Server();

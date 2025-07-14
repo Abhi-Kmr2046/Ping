@@ -21,8 +21,12 @@ int main(int argc, char const* argv[])
 
     //cli->ops0TestMessageClient();
 
-    char* servpath = "/home/abhi/Downloads/Server/back.jpg";
-    char* clipath = "/home/abhi/Downloads/Client/back.jpg";
-    cli->ops1ReceiveFileClient(clipath, servpath);
+    // char* servpath = "/home/abhi/Downloads/Server/back.jpg";
+    // char* clipath = "/home/abhi/Downloads/Client/back.jpg";
+    // cli->ops1ReceiveFileClient(clipath, servpath);
+
+    char* filepath = "/home/abhi/Downloads/Server/back.jpg";
+    char* filename = "back.jpg";
+    cli->ops2SendFileClient(filename, filepath);
 
 }

@@ -168,5 +168,54 @@ int Client::ops1ReceiveFileClient(char* destfilepath, char* serverpath)
     return 0;
 }
 
+int Client::ops2SendFileClient(char* filename, char* filepath)
+{
+    char* req_string = new char[256];
+    req_string[0] = '2';
+    req_string[1] = 0;
+    instance->sendMessage(req_string, strlen(req_string));
+
+
+    size_t file_size = 0;
+    char* message = new char[BUF];
+    if (FILE *fp = fopen(filepath, "rb")) {
+        size_t len = 0;
+        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+            file_size += len;
+            if(len < sizeof(message)) break;
+        }
+        fclose(fp);
+    }else {
+        std::cout<<"File Read Error"<<std::endl;
+    }
+
+    // Send File Name
+    // char file_size_s [1024];
+    // strcpy(file_size_s, std::to_string(file_size).c_str());
+    sendMessage(filename, 1024);
+    //std::cout<<filename << " " << sizeof(filename)<<std::endl;
+    
+    // Send File Size
+    char file_size_s [1024];
+    strcpy(file_size_s, std::to_string(file_size).c_str());
+    sendMessage(file_size_s, sizeof(file_size));
+
+
+
+    if (FILE *fp = fopen(filepath, "rb")) {
+        size_t len = 0;
+        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+            sendMessage(message, sizeof(message));
+        }
+    }else {
+        std::cout<<"File Read Error"<<std::endl;
+    }
+
+    // send file
+    delete message;
+    sleep(1);
+    return 0;
+}
+
 Client* Client::instance = nullptr;
 char* Client::IP = "192.168.0.115";

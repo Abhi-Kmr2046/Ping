@@ -143,15 +143,47 @@ int Server::ops1SendFileServer(int client_socket, operation op, char* message)
 
 int Server::ops2ReceiveFileServer(int client_socket, operation op, char* message)
 {
-    op;
-    int status = receiveSocket(client_socket,message);
-    // printf("%s\n", message);
-    std::cout<<message<<std::endl;
+    std::cout << "Operation : " << op.ops << " ";
+    std::cout << sizeof(message) << std::endl;
 
-    char* messageS = "Operation 0 Test Connection : Server";
-    sendSocket(client_socket, messageS, strlen(messageS));
+    char* filename = new char[1024];
+    instance->receiveSocket(client_socket, filename, 1024);
+    std::cout<<"Filename : " << filename<<std::endl;
 
-    sleep(1);
+    char* dest_path = new char[1024];
+    strcpy(dest_path, downloaddir);
+    strcpy(&dest_path[strlen(dest_path)], filename);
+
+    char * file_size_s = new char [1024];
+    instance->receiveSocket(client_socket, file_size_s, sizeof(file_size_s));
+    size_t file_size = atoi(file_size_s);
+    std::cout<<"File Size:" << file_size<<std::endl;
+
+    if (FILE *fp = fopen(dest_path, "wb")) {
+        size_t len = 0;
+        while(file_size >0) {
+            len = instance->receiveSocket(client_socket, message, sizeof(message));
+            //std::cout<<file_size << " " << len<<std::endl;
+            
+            if(file_size < sizeof(message)) len = file_size;
+
+            file_size -= len;
+            int fst = 0;
+            if ((fst = fwrite(message, 1, len, fp)) < 0 ){
+                std::cout<<"file Write error" << std::endl;
+            }
+
+        }
+
+        std::cout << "File Transfer Complete" <<std::endl;
+    }else {
+        std::cout<<"File Read Error"<<std::endl;
+    }
+    
+    
+    delete filename;
+    delete dest_path;
+    delete file_size_s;
     return 0;
 }
 
@@ -179,6 +211,9 @@ int Server::processClientRequest(int client_socket)
         break;
         case 1:
         ops1SendFileServer(client_socket, op, message);
+        break;
+        case 2:
+        ops2ReceiveFileServer(client_socket, op, message);
         break;
         default:
         break;
@@ -258,6 +293,8 @@ Server::operation Server::parseRequest(std::string req)
         break;
     case 1:
         req_stream>>op.filepath;
+    case 2:
+        break;
     default:
         break;
     }
@@ -267,3 +304,5 @@ Server::operation Server::parseRequest(std::string req)
 
 Server* Server::instance = nullptr;
 char* Server::IP = "192.168.0.115";
+
+char* Server::downloaddir = "/home/abhi/Downloads/Server/Download/";
