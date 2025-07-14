@@ -82,7 +82,7 @@ int Server::test()
     // subtract 1 for the null
     // terminator at the end
     size_t valread = read(new_socket, buffer,
-                   1024 - 1); 
+                   BUFS - 1); 
     printf("%s\n", buffer);
     //send(new_socket, hello, strlen(hello), 0);
     //printf("Hello message Received\n");
@@ -112,9 +112,9 @@ int Server::ops1SendFileServer(int client_socket, operation op, char* message)
     std::cout<<"File path: "<<op.filepath<<std::endl;
     if (FILE *fp = fopen(op.filepath.c_str(), "rb")) {
         size_t len = 0;
-        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+        while((len = fread(message, 1, BUF, fp)) > 0) {
             file_size += len;
-            if(len < sizeof(message)) break;
+            if(len < BUF) break;
         }
         fclose(fp);
     }else {
@@ -122,13 +122,14 @@ int Server::ops1SendFileServer(int client_socket, operation op, char* message)
     }
 
     // Send File Size
+    std::cout<<"File size : "<<file_size<<std::endl;
     char file_size_s [10];
     strcpy(file_size_s, std::to_string(file_size).c_str());
     sendSocket(client_socket, file_size_s, strlen(file_size_s));
 
     if (FILE *fp = fopen(op.filepath.c_str(), "rb")) {
         size_t len = 0;
-        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+        while((len = fread(message, 1, BUF, fp)) > 0) {
             //std::cout << len<< std::endl;
             sendSocket(client_socket, message, len);
         }
@@ -144,28 +145,27 @@ int Server::ops1SendFileServer(int client_socket, operation op, char* message)
 int Server::ops2ReceiveFileServer(int client_socket, operation op, char* message)
 {
     std::cout << "Operation : " << op.ops << " ";
-    std::cout << sizeof(message) << std::endl;
 
-    char* filename = new char[1024];
-    instance->receiveSocket(client_socket, filename, 1024);
+    char* filename = new char[BUFS];
+    instance->receiveSocket(client_socket, filename, BUFS);
     std::cout<<"Filename : " << filename<<std::endl;
 
-    char* dest_path = new char[1024];
+    char* dest_path = new char[BUFS];
     strcpy(dest_path, downloaddir);
     strcpy(&dest_path[strlen(dest_path)], filename);
 
-    char * file_size_s = new char [1024];
-    instance->receiveSocket(client_socket, file_size_s, sizeof(file_size_s));
+    char * file_size_s = new char [BUFS];
+    instance->receiveSocket(client_socket, file_size_s, BUFS);
     size_t file_size = atoi(file_size_s);
     std::cout<<"File Size:" << file_size<<std::endl;
 
     if (FILE *fp = fopen(dest_path, "wb")) {
         size_t len = 0;
         while(file_size >0) {
-            len = instance->receiveSocket(client_socket, message, sizeof(message));
+            len = instance->receiveSocket(client_socket, message, BUF);
             //std::cout<<file_size << " " << len<<std::endl;
             
-            if(file_size < sizeof(message)) len = file_size;
+            if(file_size < BUF) len = file_size;
 
             file_size -= len;
             int fst = 0;

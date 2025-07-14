@@ -13,7 +13,7 @@
 
 Client::Client() 
 {
-    buffer = new char[BUF];
+    buffer = new char[BUFS];
 
     // Creating socket file descriptor
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -70,7 +70,7 @@ int Client::test()
     send(fd, hello, strlen(hello), 0);
     std::cout<<"Hello message sent\n"<<std::endl;
     size_t valread = read(fd, buffer,
-                   1024 - 1); 
+                   BUFS - 1); 
     // printf("%s\n", buffer);
     std::cout<<buffer<<std::endl;
 
@@ -119,7 +119,7 @@ int Client::ops0TestMessageClient()
     char* message = "Operation 0 Test Connection : Server";
     instance->sendMessage(message, strlen(message));
     
-    char* rec = new char[1024];
+    char* rec = new char[BUFS];
     //sleep(10);
     instance->receiveMessage(rec);
     std::cout<<rec<<std::endl;
@@ -134,12 +134,13 @@ int Client::ops1ReceiveFileClient(char* destfilepath, char* serverpath)
     strcpy(&req_string[2], serverpath);
     instance->sendMessage(req_string, strlen(req_string));
 
-    char * rec = new char [1024];
+    char * rec = new char [BUFS];
     instance->receiveMessage(rec);
     size_t file_size = atoi(rec);
     std::cout<<"File Size:" << file_size<<std::endl;
-    
+
     char * message = new char[BUF];
+
 
     if (FILE *fp = fopen(destfilepath, "wb")) {
         size_t len = 0;
@@ -147,7 +148,7 @@ int Client::ops1ReceiveFileClient(char* destfilepath, char* serverpath)
             len = receiveMessage(message);
             //std::cout<<file_size << " " << len<<std::endl;
             
-            if(file_size < sizeof(message)) len = file_size;
+            if(file_size < BUF) len = file_size;
 
             file_size -= len;
             int fst = 0;
@@ -164,6 +165,7 @@ int Client::ops1ReceiveFileClient(char* destfilepath, char* serverpath)
     
     
     delete req_string;
+    delete rec;
     delete message;
     return 0;
 }
@@ -180,9 +182,9 @@ int Client::ops2SendFileClient(char* filename, char* filepath)
     char* message = new char[BUF];
     if (FILE *fp = fopen(filepath, "rb")) {
         size_t len = 0;
-        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
+        while((len = fread(message, 1, BUF, fp)) > 0) {
             file_size += len;
-            if(len < sizeof(message)) break;
+            if(len < BUF) break;
         }
         fclose(fp);
     }else {
@@ -192,20 +194,20 @@ int Client::ops2SendFileClient(char* filename, char* filepath)
     // Send File Name
     // char file_size_s [1024];
     // strcpy(file_size_s, std::to_string(file_size).c_str());
-    sendMessage(filename, 1024);
+    sendMessage(filename, BUFS);
     //std::cout<<filename << " " << sizeof(filename)<<std::endl;
     
     // Send File Size
-    char file_size_s [1024];
+    char file_size_s [BUFS];
     strcpy(file_size_s, std::to_string(file_size).c_str());
-    sendMessage(file_size_s, sizeof(file_size));
+    sendMessage(file_size_s, BUFS);
 
 
 
     if (FILE *fp = fopen(filepath, "rb")) {
         size_t len = 0;
-        while((len = fread(message, 1, sizeof(message), fp)) > 0) {
-            sendMessage(message, sizeof(message));
+        while((len = fread(message, 1, BUF, fp)) > 0) {
+            sendMessage(message, BUF);
         }
     }else {
         std::cout<<"File Read Error"<<std::endl;
