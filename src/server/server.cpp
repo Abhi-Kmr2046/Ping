@@ -35,6 +35,8 @@ Server::Server()
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(IP);
     addr.sin_port = htons(PORT);
+
+    dbinstance = Database::getInstance();
 }
 
 Server::~Server()

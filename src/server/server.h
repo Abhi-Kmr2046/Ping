@@ -7,6 +7,7 @@
 #include "../interface/clientserver.h"
 #include "../interface/consts.h"
 #include "../threadpool/threadpool.h"
+#include "../database/database.h"
 
 class Server : public ClientServer
 {
@@ -23,6 +24,7 @@ private:
     
     static char* downloaddir;
 
+    Database* dbinstance;
 private:
     ~Server();
     Server();
